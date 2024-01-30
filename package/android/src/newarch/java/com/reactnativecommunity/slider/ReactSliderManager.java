@@ -42,12 +42,18 @@ public class ReactSliderManager extends SimpleViewManager<ReactSlider> implement
             public void onProgressChanged(SeekBar seekbar, int progress, boolean fromUser) {
               ReactSlider slider = (ReactSlider)seekbar;
 
-              if(progress < slider.getLowerLimit()) {
-                progress = slider.getLowerLimit();
-                seekbar.setProgress(progress);
-              } else if (progress > slider.getUpperLimit()) {
-                progress = slider.getUpperLimit();
-                seekbar.setProgress(progress);
+              // During initialization, lowerLimit can be greater than upperLimit.
+              //
+              // If a change event is received during this, we need a check to prevent
+              // infinite recursion.
+              if (slider.getLowerLimit() <= slider.getUpperLimit()) {
+                if(progress < slider.getLowerLimit()) {
+                  progress = slider.getLowerLimit();
+                  seekbar.setProgress(progress);
+                } else if (progress > slider.getUpperLimit()) {
+                  progress = slider.getUpperLimit();
+                  seekbar.setProgress(progress);
+                }
               }
 
               ReactContext reactContext = (ReactContext) seekbar.getContext();
